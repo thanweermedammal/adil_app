@@ -1,9 +1,20 @@
+import 'package:adil/helper/auth_fech.dart';
+import 'package:adil/helper/data_fetch.dart';
 import 'package:adil/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +50,7 @@ class LoginScreen extends StatelessWidget {
                     // validator: phoneValidator,
                     keyboardType: TextInputType.text,
                     cursorColor: Colors.green,
-                    // controller: userNameController,
+                    controller: userNameController,
                     onChanged: (text) {
                       // mobileNumber = value;
                     },
@@ -52,7 +63,7 @@ class LoginScreen extends StatelessWidget {
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           borderSide: BorderSide(
-                            color: Colors.white,
+                            color: Colors.grey,
                           )),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -68,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                     // validator: phoneValidator,
                     keyboardType: TextInputType.text,
                     cursorColor: Colors.green,
-                    // controller: passwordController,
+                    controller: passwordController,
                     onChanged: (text) {
                       // mobileNumber = value;
                     },
@@ -81,7 +92,7 @@ class LoginScreen extends StatelessWidget {
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           borderSide: BorderSide(
-                            color: Colors.white,
+                            color: Colors.grey,
                           )),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -125,11 +136,46 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()));
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+
+                        AuthFetch()
+                            .authenticate(userNameController.text,
+                                passwordController.text)
+                            .then((value) => {
+                                  if (value)
+                                    {
+                                      prefs.setString(
+                                          'userName', userNameController.text),
+                                      prefs.setString(
+                                          'pass', passwordController.text),
+                                      Fluttertoast.showToast(
+                                          msg: "Login Successfull",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.green,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0),
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomeScreen()),
+                                          (route) => false)
+                                    }
+                                  else
+                                    {
+                                      Fluttertoast.showToast(
+                                          msg: "Wrong Username/password",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0),
+                                    }
+                                });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.yellow,

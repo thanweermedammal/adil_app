@@ -1,8 +1,14 @@
 import 'package:adil/screens/login_screen.dart';
+import 'package:adil/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_value/shared_value.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    SharedValue.wrapApp(
+      MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,7 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }
